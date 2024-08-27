@@ -1,6 +1,6 @@
 import "./style.css";
 import "./workers";
-import "./typescript-language-features/monaco.contribution";
+import "./typescript-basics";
 import * as monaco from "monaco-editor-core";
 import { TokensProviderCache, convertTheme } from "./textmate/index";
 import darkPlusTheme from "./textmate/themes/dark.json";
