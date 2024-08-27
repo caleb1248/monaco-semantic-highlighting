@@ -11,8 +11,7 @@ const wasmPromise = fetch(wasmURL)
   .catch((error) => console.error("Failed to load `onig.wasm`:", error));
 
 const scopeUrlMap: Record<string, string> = {
-  "source.ts":
-    "https://raw.githubusercontent.com/microsoft/vscode/main/extensions/typescript-basics/syntaxes/TypeScript.tmLanguage.json",
+  "source.ts": "/TypeScript.tmLanguage.json",
 };
 
 const registry = new vsctm.Registry({
