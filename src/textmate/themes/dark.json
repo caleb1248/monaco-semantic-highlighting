@@ -598,6 +598,15 @@
       "settings": {
         "foreground": "#B267E6"
       }
-    }
+    },
+    { "scope": "class", "settings": {"foreground": "#00ff00" }},
+    { "scope": "function", "settings": {"foreground": "#ffff00" }},
+    { "scope": "method", "settings": {"foreground": "#ffff00" }},
+    { "scope": "interface", "settings": {"foreground": "#00ff00" }},
+    { "scope": "variable", "settings": {"foreground": "#0000ff" }},
+    { "scope": "variable.readonly", "settings": {"foreground": "#00ffff" }},
+    {"scope": "paramater", "settings": {"foreground": "#FFA500"}},
+    {"scope": "type", "settings": {"foreground": "#00ff00"}},
+    {"scope": "type.defaultLibrary", "settings": {"foreground": "#00ff00"}}
   ]
 }

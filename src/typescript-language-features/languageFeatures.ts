@@ -1344,7 +1344,7 @@ export class SemanticTokensAdapter
         offset.lineNumber - prevPosition.lineNumber, // Delta line number
         offset.lineNumber === prevPosition.lineNumber
           ? offset.column - prevPosition.column
-          : offset.column, // Delta column (if same line)
+          : offset.column - 1, // Delta column (if same line)
         length,
         tokenType,
         0 << tokenModifiers

@@ -35,21 +35,7 @@ export { add, add as default }`,
 );
 
 // Register textmate theme
-// const theme = convertTheme(darkPlusTheme);
-
-const theme: monaco.editor.IStandaloneThemeData = {
-  base: "vs-dark",
-  inherit: true,
-  colors: {},
-  rules: [
-    { token: "class", foreground: "#00ff00" },
-    { token: "function", foreground: "#ffff00" },
-    { token: "method", foreground: "#ffff00" },
-    { token: "interface", foreground: "#00ff00" },
-    { token: "variable", foreground: "#0000ff" },
-    { token: "variable.readonly", foreground: "#00ffff" },
-  ],
-};
+const theme = convertTheme(darkPlusTheme);
 
 monaco.editor.defineTheme("dark-plus", theme);
 
@@ -63,9 +49,9 @@ const editor = monaco.editor.create(editorDiv, {
 // Begin textmate stuff
 
 const cache = new TokensProviderCache(editor);
-// cache.getTokensProvider("source.ts").then((tokensProvider) => {
-//   monaco.languages.setTokensProvider("typescript", tokensProvider);
-// });
+cache.getTokensProvider("source.ts").then((tokensProvider) => {
+  monaco.languages.setTokensProvider("typescript", tokensProvider);
+});
 
 window.addEventListener("resize", () => editor.layout());
 
