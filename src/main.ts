@@ -20,12 +20,12 @@ interface IMyInterface {
 }
 
 async function add(a: number, b: number) {
-  console.log('calculating \${a} + \${b}');
+  console.log(\`calculating \${a} + \${b}\`);
   return a + b;
 }
 
 function subtract(a: number, b: number) {
-  console.log('calculating \${a} + \${b}');
+  console.log(\`calculating \${a} + \${b}\`);
   return a + b;
 }
 
