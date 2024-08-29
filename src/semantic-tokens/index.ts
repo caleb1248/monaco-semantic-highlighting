@@ -1,5 +1,6 @@
 import * as monaco from "monaco-editor-core";
 import { type IColorTheme, TMToMonacoToken } from "../textmate/tm-to-monaco-token";
+import DisposableList from "../utils/disposableList";
 
 const tokenMapping = {
   namespace: "entity.name.namespace",
@@ -26,33 +27,61 @@ const tokenMapping = {
 
 export class SemanticTokensCache {
   constructor(
-    editor?: monaco.editor.IStandaloneCodeEditor | undefined,
+    editor?: monaco.editor.IEditor | undefined,
     semanticTokenToTmMap: Record<string, string> = {}
   ) {
     this.semanticTokenToTmMap = { ...semanticTokenToTmMap, ...tokenMapping };
     if (editor) {
-      this.editor = editor as typeof this.editor;
-      const rules: monaco.editor.ITokenThemeRule[] =
-        this.editor!._themeService._theme.themeData.rules;
-
-      let colorTheme: IColorTheme = {
-        tokenColors: rules.map((rule) => ({
-          scope: rule.token,
-          settings: {
-            foreground: rule.foreground,
-            background: rule.background,
-            fontStyle: rule.fontStyle,
-          },
-        })),
-      };
-
-      for (const key in this.semanticTokenToTmMap) {
-        this.semanticTokenToMonacoMap[key] = TMToMonacoToken(colorTheme, [
-          this.semanticTokenToTmMap[key],
-        ]);
+      this.registerEditor(editor);
+    } else {
+      const maybeEditor = monaco.editor.getEditors()[0];
+      if (maybeEditor) {
+        this.registerEditor(maybeEditor as monaco.editor.IStandaloneCodeEditor);
+        return;
+      } else {
+        this.editorDisposables.push(
+          monaco.editor.onDidCreateEditor((editor) => this.registerEditor(editor))
+        );
       }
+    }
+  }
 
-      this.editor?._themeService.onDidColorThemeChange((theme) => {
+  semanticTokenToTmMap: Record<string, string>;
+  semanticTokenToMonacoMap: Record<string, string> = { ...tokenMapping };
+
+  themeService:
+    | {
+        _theme: IStandaloneTheme;
+        onDidColorThemeChange: (callback: (theme: IStandaloneTheme) => void) => monaco.IDisposable;
+      }
+    | undefined;
+
+  editorDisposables: DisposableList = new DisposableList();
+
+  registerEditor(editor: monaco.editor.IEditor) {
+    this.editorDisposables.dispose();
+    this.themeService = (<any>editor)._themeService;
+    const rules: monaco.editor.ITokenThemeRule[] = this.themeService!._theme.themeData.rules;
+
+    let colorTheme: IColorTheme = {
+      tokenColors: rules.map((rule) => ({
+        scope: rule.token,
+        settings: {
+          foreground: rule.foreground,
+          background: rule.background,
+          fontStyle: rule.fontStyle,
+        },
+      })),
+    };
+
+    for (const key in this.semanticTokenToTmMap) {
+      this.semanticTokenToMonacoMap[key] = TMToMonacoToken(colorTheme, [
+        this.semanticTokenToTmMap[key],
+      ]);
+    }
+
+    this.editorDisposables.push(
+      this.themeService?.onDidColorThemeChange((theme) => {
         const rules: monaco.editor.ITokenThemeRule[] = theme.themeData.rules;
 
         colorTheme = {
@@ -71,27 +100,19 @@ export class SemanticTokensCache {
             this.semanticTokenToTmMap[key],
           ]);
         }
-      });
-    } else {
-      this.semanticTokenToMonacoMap = { ...semanticTokenToTmMap };
-    }
+      })
+    );
   }
 
-  semanticTokenToTmMap: Record<string, string>;
-  semanticTokenToMonacoMap: Record<string, string> = { ...tokenMapping };
-
-  editor:
-    | (monaco.editor.IStandaloneCodeEditor & {
-        _themeService: {
-          _theme: IStandaloneTheme;
-          onDidColorThemeChange: (callback: (theme: IStandaloneTheme) => void) => void;
-        };
-      })
-    | undefined;
-
-  registerSemanticTokenProvider() {}
+  registerSemanticTokenProvider(provider: monaco.languages.DocumentSemanticTokensProvider) {
+    return {
+      getLegend: () => {},
+    };
+  }
 }
 
 interface IStandaloneTheme {
   themeData: monaco.editor.IStandaloneThemeData;
 }
+
+const y = 1;
