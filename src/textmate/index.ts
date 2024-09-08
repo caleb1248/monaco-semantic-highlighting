@@ -113,4 +113,25 @@ class TokensProviderCache {
   }
 }
 
+class TokensCache2 {
+  private _cache: Record<string, monaco.languages.TokensProvider> = {};
+  private _registry: vsctm.Registry;
+
+  constructor() {
+    this._registry = new vsctm.Registry({
+      onigLib: wasmPromise.then(() => {
+        return {
+          createOnigScanner: (sources) => new OnigScanner(sources),
+          createOnigString: (str) => new OnigString(str),
+        };
+      }),
+      loadGrammar: () => Promise.resolve(undefined),
+    });
+  }
+
+  addGrammar(grammar: string, type: "json" | "plist") {
+    this._registry.addGrammar(vsctm.parseRawGrammar(grammar, "grammar." + type));
+  }
+}
+
 export { TokensProviderCache };
