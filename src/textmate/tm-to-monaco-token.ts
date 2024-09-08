@@ -30,12 +30,7 @@ export function findMatchingThemeRule(
   for (let i = scopes.length - 1; i >= 0; i--) {
     const parentScopes = scopes.slice(0, i);
     const scope = scopes[i];
-    const r = findMatchingThemeRule2(
-      theme,
-      scope,
-      parentScopes,
-      onlyColorRules
-    );
+    const r = findMatchingThemeRule2(theme, scope, parentScopes, onlyColorRules);
     if (r) {
       return r;
     }
@@ -59,7 +54,7 @@ function findMatchingThemeRule2(
     }
 
     let selectors: string[];
-    if (typeof rule.scope === 'string') {
+    if (typeof rule.scope === "string") {
       selectors = rule.scope.split(/,/).map((scope) => scope.trim());
     } else if (Array.isArray(rule.scope)) {
       selectors = rule.scope;
@@ -93,19 +88,11 @@ export class ThemeRule {
     this.settings = settings;
     const rawSelectorPieces = this.rawSelector.split(/ /);
     this.scope = rawSelectorPieces[rawSelectorPieces.length - 1];
-    this.parentScopes = rawSelectorPieces.slice(
-      0,
-      rawSelectorPieces.length - 1
-    );
+    this.parentScopes = rawSelectorPieces.slice(0, rawSelectorPieces.length - 1);
   }
 
   public matches(scope: string, parentScopes: string[]): boolean {
-    return ThemeRule._matches(
-      this.scope,
-      this.parentScopes,
-      scope,
-      parentScopes
-    );
+    return ThemeRule._matches(this.scope, this.parentScopes, scope, parentScopes);
   }
 
   private static _cmp(a: ThemeRule | null, b: ThemeRule | null): number {
@@ -145,11 +132,8 @@ export class ThemeRule {
   }
 
   private static _matchesOne(selectorScope: string, scope: string): boolean {
-    const selectorPrefix = selectorScope + '.';
-    if (
-      selectorScope === scope ||
-      scope.substring(0, selectorPrefix.length) === selectorPrefix
-    ) {
+    const selectorPrefix = selectorScope + ".";
+    if (selectorScope === scope || scope.substring(0, selectorPrefix.length) === selectorPrefix) {
       return true;
     }
     return false;
@@ -168,12 +152,7 @@ export class ThemeRule {
     let selectorParentIndex = selectorParentScopes.length - 1;
     let parentIndex = parentScopes.length - 1;
     while (selectorParentIndex >= 0 && parentIndex >= 0) {
-      if (
-        this._matchesOne(
-          selectorParentScopes[selectorParentIndex],
-          parentScopes[parentIndex]
-        )
-      ) {
+      if (this._matchesOne(selectorParentScopes[selectorParentIndex], parentScopes[parentIndex])) {
         selectorParentIndex--;
       }
       parentIndex--;
@@ -188,5 +167,6 @@ export class ThemeRule {
 
 export const TMToMonacoToken = (theme: IColorTheme, scopes: string[]) => {
   const themeRule = findMatchingThemeRule(theme, scopes, true);
-  return themeRule ? themeRule.scope : '';
+  console.log(themeRule?.rawSelector);
+  return themeRule ? themeRule.scope : "";
 };
