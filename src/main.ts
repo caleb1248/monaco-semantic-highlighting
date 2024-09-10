@@ -33,7 +33,6 @@ export { add, add as default }`,
   "typescript",
   monaco.Uri.file("main.ts")
 );
-
 // Register textmate theme
 const theme = convertTheme(darkPlusTheme);
 

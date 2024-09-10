@@ -1,4 +1,6 @@
-import type { editor } from 'monaco-editor-core';
+import type { editor } from "monaco-editor-core";
+import type { IRawTheme } from "vscode-textmate";
+import type { IRawThemeSetting } from "vscode-textmate/release/theme";
 
 interface IVScodeTheme {
   $schema: string;
@@ -23,12 +25,12 @@ interface TokenColor {
   };
 }
 
-type ThemeType = 'light' | 'dark' | 'hcLight' | 'hcDark';
+type ThemeType = "light" | "dark" | "hcLight" | "hcDark";
 
 function convertTheme(theme: IVScodeTheme): editor.IStandaloneThemeData {
   const rules = [];
   for (const rule of theme.tokenColors) {
-    if (typeof rule.scope === 'string') {
+    if (typeof rule.scope === "string") {
       rules.push({
         token: rule.scope,
         foreground: rule.settings.foreground,
@@ -45,18 +47,31 @@ function convertTheme(theme: IVScodeTheme): editor.IStandaloneThemeData {
 
   return {
     base:
-      theme.type === 'light'
-        ? 'vs'
-        : theme.type === 'hcLight'
-        ? 'hc-light'
-        : theme.type === 'hcDark'
-        ? 'hc-black'
-        : 'vs-dark',
+      theme.type === "light"
+        ? "vs"
+        : theme.type === "hcLight"
+        ? "hc-light"
+        : theme.type === "hcDark"
+        ? "hc-black"
+        : "vs-dark",
     inherit: false,
     rules,
     colors: theme.colors || {},
   };
 }
 
-export { convertTheme };
+function reverseConvert(theme: editor.IStandaloneThemeData): IRawTheme {
+  return {
+    settings: theme.rules.map<IRawThemeSetting>((rule) => ({
+      scope: rule.token,
+      settings: {
+        foreground: rule.foreground,
+        fontStyle: rule.fontStyle,
+        background: rule.background,
+      },
+    })),
+  };
+}
+
+export { convertTheme, reverseConvert };
 export type { IVScodeTheme, TokenColor };

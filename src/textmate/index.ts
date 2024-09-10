@@ -3,6 +3,7 @@ import { loadWASM, OnigScanner, OnigString } from "vscode-oniguruma";
 import * as monaco from "monaco-editor-core";
 import wasmURL from "vscode-oniguruma/release/onig.wasm?url";
 import { IColorTheme, TMToMonacoToken } from "./tm-to-monaco-token";
+import { reverseConvert } from "./theme-converter";
 
 export { convertTheme, type IVScodeTheme, type TokenColor } from "./theme-converter";
 const wasmPromise = fetch(wasmURL)
@@ -114,10 +115,10 @@ class TokensProviderCache {
 }
 
 class TokensCache2 {
-  private _cache: Record<string, monaco.languages.TokensProvider> = {};
+  private _cache: Record<string, monaco.languages.EncodedTokensProvider> = {};
   private _registry: vsctm.Registry;
 
-  constructor() {
+  constructor(editor: monaco.editor.IEditor) {
     this._registry = new vsctm.Registry({
       onigLib: wasmPromise.then(() => {
         return {
@@ -127,10 +128,51 @@ class TokensCache2 {
       }),
       loadGrammar: () => Promise.resolve(undefined),
     });
+
+    const themeService = (editor as unknown as { _themeService: any })._themeService;
+    themeService.onDidColorThemeChange((theme: any) => {
+      this._registry.setTheme(
+        reverseConvert(theme.themeData),
+        theme._tokenTheme._colorMap._id2color.map((color: any) => color.toString())
+      );
+    });
   }
 
-  addGrammar(grammar: string, type: "json" | "plist") {
-    this._registry.addGrammar(vsctm.parseRawGrammar(grammar, "grammar." + type));
+  addGrammar(grammar: string, type: "json" | "plist"): Promise<vsctm.IGrammar> {
+    return this._registry.addGrammar(vsctm.parseRawGrammar(grammar, "grammar." + type));
+  }
+
+  getTokensProvider(
+    grammar: string | vsctm.IGrammar | Promise<vsctm.IGrammar>
+  ): Promise<monaco.languages.EncodedTokensProvider> {
+    if (typeof grammar === "string") {
+      if (this._cache[grammar]) {
+        return Promise.resolve(this._cache[grammar]);
+      }
+      return new Promise((resolve, reject) => {
+        this._registry.loadGrammar(grammar).then((result) => {
+          if (!result) {
+            reject(new Error("Failed to load grammar with scope name '" + grammar + "'"));
+            return;
+          }
+          this._cache[grammar] = this._grammarToTokensProvider(result);
+          resolve(this._cache[grammar]);
+        });
+      });
+    }
+  }
+
+  _grammarToTokensProvider(grammar: vsctm.IGrammar): monaco.languages.EncodedTokensProvider {
+    return {
+      getInitialState: () => vsctm.INITIAL,
+      tokenizeEncoded(line, state: vsctm.StateStack): monaco.languages.IEncodedLineTokens {
+        const lineTokens = grammar.tokenizeLine2(line, state);
+        return {
+          tokens: lineTokens.tokens,
+          endState: lineTokens.ruleStack,
+        };
+      },
+    };
   }
 }
 
