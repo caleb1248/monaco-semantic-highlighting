@@ -117,6 +117,7 @@ class TokensProviderCache {
 class TokensCache2 {
   private _cache: Record<string, monaco.languages.EncodedTokensProvider> = {};
   private _registry: vsctm.Registry;
+  private _currentThemeData: vsctm.IRawTheme;
 
   constructor(editor: monaco.editor.IEditor) {
     this._registry = new vsctm.Registry({
@@ -130,19 +131,25 @@ class TokensCache2 {
     });
 
     const themeService = (editor as unknown as { _themeService: any })._themeService;
-    themeService.onDidColorThemeChange((theme: any) => {
-      this._registry.setTheme(
-        reverseConvert(theme.themeData),
-        theme._tokenTheme._colorMap._id2color.map((color: any) => color.toString())
-      );
-    });
+    themeService.onDidColorThemeChange(this.setTheme.bind(this));
+    this.setTheme(themeService._theme);
+  }
+
+  private setTheme(theme: any) {
+    const themeData = reverseConvert(theme.themeData);
+    if (JSON.stringify(themeData) !== JSON.stringify(this._currentThemeData)) {
+      alert("theme changed");
+      this._registry.setTheme(themeData);
+      this._currentThemeData = themeData;
+      monaco.languages.setColorMap(this._registry.getColorMap());
+    }
   }
 
   addGrammar(grammar: string, type: "json" | "plist"): Promise<vsctm.IGrammar> {
     return this._registry.addGrammar(vsctm.parseRawGrammar(grammar, "grammar." + type));
   }
 
-  getTokensProvider(
+  public getTokensProvider(
     grammar: string | vsctm.IGrammar | Promise<vsctm.IGrammar>
   ): Promise<monaco.languages.EncodedTokensProvider> {
     if (typeof grammar === "string") {
@@ -159,7 +166,23 @@ class TokensCache2 {
           resolve(this._cache[grammar]);
         });
       });
+    } else if (grammar instanceof Promise) {
+      return grammar.then((result) => this._grammarToTokensProvider(result));
+    } else {
+      return Promise.resolve(this._grammarToTokensProvider(grammar));
     }
+  }
+
+  public getTokensProviderSync(
+    grammar: string | vsctm.IGrammar
+  ): monaco.languages.EncodedTokensProvider {
+    if (typeof grammar === "string") {
+      if (this._cache[grammar]) {
+        return this._cache[grammar];
+      }
+      throw new Error("Grammar not found in cache");
+    }
+    return this._grammarToTokensProvider(grammar);
   }
 
   _grammarToTokensProvider(grammar: vsctm.IGrammar): monaco.languages.EncodedTokensProvider {
@@ -172,8 +195,21 @@ class TokensCache2 {
           endState: lineTokens.ruleStack,
         };
       },
+      tokenize: (line, state: vsctm.StateStack) => {
+        console.log("tokenize unencoded");
+        const theme = { tokenColors: this._currentThemeData.settings };
+        const lineTokens = grammar.tokenizeLine(line, state);
+        const tokens = lineTokens.tokens.map((token) => ({
+          scopes: TMToMonacoToken(theme, token.scopes),
+          startIndex: token.startIndex,
+        }));
+        return {
+          tokens,
+          endState: lineTokens.ruleStack,
+        };
+      },
     };
   }
 }
 
-export { TokensProviderCache };
+export { TokensProviderCache, TokensCache2 };

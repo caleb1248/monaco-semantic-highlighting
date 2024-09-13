@@ -114,5 +114,3 @@ export class SemanticTokensCache {
 interface IStandaloneTheme {
   themeData: monaco.editor.IStandaloneThemeData;
 }
-
-const y = 1;

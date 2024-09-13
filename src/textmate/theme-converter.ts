@@ -61,7 +61,7 @@ function convertTheme(theme: IVScodeTheme): editor.IStandaloneThemeData {
 }
 
 function reverseConvert(theme: editor.IStandaloneThemeData): IRawTheme {
-  return {
+  const result: IRawTheme = {
     settings: theme.rules.map<IRawThemeSetting>((rule) => ({
       scope: rule.token,
       settings: {
@@ -71,6 +71,16 @@ function reverseConvert(theme: editor.IStandaloneThemeData): IRawTheme {
       },
     })),
   };
+
+  result.settings.push({
+    scope: "",
+    settings: {
+      foreground: theme.colors["editor.foreground"],
+      background: theme.colors["editor.background"],
+    },
+  });
+
+  return result;
 }
 
 export { convertTheme, reverseConvert };

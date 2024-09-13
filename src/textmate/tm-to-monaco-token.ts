@@ -167,6 +167,5 @@ export class ThemeRule {
 
 export const TMToMonacoToken = (theme: IColorTheme, scopes: string[]) => {
   const themeRule = findMatchingThemeRule(theme, scopes, true);
-  console.log(themeRule?.rawSelector);
   return themeRule ? themeRule.scope : "";
 };

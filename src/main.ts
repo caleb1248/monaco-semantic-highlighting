@@ -2,7 +2,7 @@ import "./style.css";
 import "./workers";
 import "./typescript-basics";
 import * as monaco from "monaco-editor-core";
-import { TokensProviderCache, convertTheme } from "./textmate/index";
+import { TokensCache2, TokensProviderCache, convertTheme } from "./textmate/index";
 import darkPlusTheme from "./textmate/themes/dark.json";
 
 const editorDiv = document.createElement("div");
@@ -44,13 +44,22 @@ const editor = monaco.editor.create(editorDiv, {
   theme: "dark-plus",
   "semanticHighlighting.enabled": true,
 });
-
 // Begin textmate stuff
 
-const cache = new TokensProviderCache(editor);
-cache.getTokensProvider("source.ts").then((tokensProvider) => {
-  monaco.languages.setTokensProvider("typescript", tokensProvider);
-});
+// const cache = new TokensProviderCache(editor);
+// cache.getTokensProvider("source.ts").then((tokensProvider) => {
+//   monaco.languages.setTokensProvider("typescript", tokensProvider);
+// });
+
+const cache = new TokensCache2(editor);
+fetch("/TypeScript.tmLanguage.json")
+  .then((response) => response.text())
+  .then((grammar) => {
+    monaco.languages.setTokensProvider(
+      "typescript",
+      cache.getTokensProvider(cache.addGrammar(grammar, "json"))
+    );
+  });
 
 window.addEventListener("resize", () => editor.layout());
 
