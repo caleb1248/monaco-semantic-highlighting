@@ -2,7 +2,12 @@ import * as monaco from "monaco-editor-core";
 import { type IColorTheme, TMToMonacoToken } from "../textmate/tm-to-monaco-token";
 import DisposableList from "../utils/disposableList";
 
-const tokenMapping = {
+type LanguageId = string;
+type SemanticTokenType = string;
+
+type SemanticTokenMapping = Record<SemanticTokenType, string | undefined>;
+
+const tokenMapping: SemanticTokenMapping = {
   namespace: "entity.name.namespace",
   type: "entity.name.type",
   "type.defaultLibrary": "support.type",
@@ -25,11 +30,21 @@ const tokenMapping = {
   event: "variable.other.event",
 };
 
-export class SemanticTokensCache {
-  constructor(
-    editor?: monaco.editor.IEditor | undefined,
-    semanticTokenToTmMap: Record<string, string> = {}
-  ) {
+const mappingContributions: Record<LanguageId, Record<SemanticTokenType, string> | undefined> = {};
+
+function getTmScopeForSemanticToken(
+  semanticToken: SemanticTokenType,
+  languageId: LanguageId
+): string | undefined {
+  if (mappingContributions[languageId] && mappingContributions[languageId]![semanticToken]) {
+    return mappingContributions[languageId]![semanticToken];
+  }
+
+  return tokenMapping[semanticToken];
+}
+
+class SemanticTokensCache {
+  constructor(editor?: monaco.editor.IEditor | undefined) {
     this.semanticTokenToTmMap = { ...semanticTokenToTmMap, ...tokenMapping };
     if (editor) {
       this.registerEditor(editor);
@@ -46,8 +61,8 @@ export class SemanticTokensCache {
     }
   }
 
-  semanticTokenToTmMap: Record<string, string>;
-  semanticTokenToMonacoMap: Record<string, string> = { ...tokenMapping };
+  semanticTokenToTmMap: SemanticTokenMapping;
+  semanticTokenToMonacoMap: SemanticTokenMapping = { ...tokenMapping };
 
   themeService:
     | {
@@ -111,6 +126,34 @@ export class SemanticTokensCache {
   }
 }
 
+/**
+ *
+ * @param languageId The id of the language to register the mapping for. If ndefined, the mapping will be registered globally.u
+ * @param mapping The mapping to register.
+ *
+ * @example
+ * ```ts
+ * registerMappingContributions("typescript", {
+ *  "type.defaultLibrary": "support.type",
+ *  "function.defaultLibrary": "support.function",
+ * });
+ */
+function registerMappingContributions(
+  languageId: LanguageId | undefined,
+  mapping: Record<SemanticTokenType, string>
+) {
+  if (languageId) {
+    mappingContributions[languageId] = { ...(mappingContributions[languageId] || {}), ...mapping };
+    return;
+  }
+
+  for (const key in mapping) {
+    tokenMapping[key] = mapping[key];
+  }
+}
+
 interface IStandaloneTheme {
   themeData: monaco.editor.IStandaloneThemeData;
 }
+
+export { SemanticTokensCache, registerMappingContributions };

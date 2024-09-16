@@ -1351,20 +1351,7 @@ export class SemanticTokensAdapter
       );
 
       prevPosition = offset;
-
-      debugData.push({
-        // offset: `(${offset.lineNumber - prevPosition.lineNumber}, ${
-        //   offset.lineNumber === prevPosition.lineNumber
-        //     ? offset.column - prevPosition.column
-        //     : offset.column
-        // })`,
-        offset: `(line: ${offset.lineNumber}, column: ${offset.column})`,
-        length,
-        tokenType: this.getLegend().tokenTypes[tokenType],
-        tokenModifiers: this.getLegend().tokenModifiers[tokenModifiers],
-      });
     }
-    console.log(debugData);
     return { data: new Uint32Array(data) };
   }
 
