@@ -1,4 +1,4 @@
-import type { editor } from "monaco-editor-core";
+import type { editor } from "typed-monaco-editor-core";
 import type { IRawTheme } from "vscode-textmate";
 import type { IRawThemeSetting } from "vscode-textmate/release/theme";
 

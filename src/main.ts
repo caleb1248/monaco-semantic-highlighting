@@ -1,7 +1,7 @@
 import "./style.css";
 import "./workers";
 import "./typescript-basics";
-import * as monaco from "monaco-editor-core";
+import * as monaco from "typed-monaco-editor-core";
 import { TokensCache2, convertTheme } from "./textmate/index";
 import darkPlusTheme from "./textmate/themes/dark.json";
 

@@ -1,6 +1,6 @@
 import * as vsctm from "vscode-textmate";
 import { loadWASM, OnigScanner, OnigString } from "vscode-oniguruma";
-import * as monaco from "monaco-editor-core";
+import * as monaco from "typed-monaco-editor-core";
 import wasmURL from "vscode-oniguruma/release/onig.wasm?url";
 import { TMToMonacoToken } from "./tm-to-monaco-token";
 import { reverseConvert } from "./theme-converter";
