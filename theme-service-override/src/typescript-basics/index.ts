@@ -1,4 +1,4 @@
-import { languages } from "typed-monaco-editor-core";
+import { languages } from "monaco-editor";
 import { conf } from "./configuration";
 languages.register({
   id: "typescript",

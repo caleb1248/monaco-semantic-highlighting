@@ -5,7 +5,7 @@
 
 import type * as mode from "./tsMode";
 import { typescriptVersion as tsversion } from "./lib/typescriptServicesMetadata"; // do not import the whole typescriptServices here
-import { languages, Emitter, IEvent, IDisposable, Uri } from "typed-monaco-editor-core";
+import { languages, Emitter, IEvent, IDisposable, Uri } from "monaco-editor";
 import type { Classifications } from "./lib/typescriptServices";
 languages.register({
   id: "typescript",

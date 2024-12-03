@@ -1,6 +1,7 @@
-import type { editor } from "typed-monaco-editor-core";
+import type { editor } from "monaco-editor";
 import type { IRawTheme } from "vscode-textmate";
 import type { IRawThemeSetting } from "vscode-textmate/release/theme";
+import { ITextmateColorThemeData } from "../theme-service-override";
 
 interface IVScodeTheme {
   $schema: string;
@@ -27,36 +28,44 @@ interface TokenColor {
 
 type ThemeType = "light" | "dark" | "hcLight" | "hcDark";
 
-function convertTheme(theme: IVScodeTheme): editor.IStandaloneThemeData {
-  const rules = [];
-  for (const rule of theme.tokenColors) {
-    if (typeof rule.scope === "string") {
-      rules.push({
-        token: rule.scope,
-        foreground: rule.settings.foreground,
-      });
-    } else {
-      for (const scope of rule.scope) {
-        rules.push({
-          token: scope,
-          foreground: rule.settings.foreground,
-        });
-      }
-    }
-  }
+// function convertTheme(theme: IVScodeTheme): editor.IStandaloneThemeData {
+//   const rules = [];
+//   for (const rule of theme.tokenColors) {
+//     if (typeof rule.scope === "string") {
+//       rules.push({
+//         token: rule.scope,
+//         foreground: rule.settings.foreground,
+//       });
+//     } else {
+//       for (const scope of rule.scope) {
+//         rules.push({
+//           token: scope,
+//           foreground: rule.settings.foreground,
+//         });
+//       }
+//     }
+//   }
 
+//   return {
+//     base:
+//       theme.type === "light"
+//         ? "vs"
+//         : theme.type === "hcLight"
+//         ? "hc-light"
+//         : theme.type === "hcDark"
+//         ? "hc-black"
+//         : "vs-dark",
+//     inherit: false,
+//     rules,
+//     colors: theme.colors || {},
+//   };
+// }
+
+function convertTheme(theme: IVScodeTheme): ITextmateColorThemeData {
   return {
-    base:
-      theme.type === "light"
-        ? "vs"
-        : theme.type === "hcLight"
-        ? "hc-light"
-        : theme.type === "hcDark"
-        ? "hc-black"
-        : "vs-dark",
-    inherit: false,
-    rules,
+    type: theme.type as ThemeType,
     colors: theme.colors || {},
+    tokenColors: theme.tokenColors,
   };
 }
 

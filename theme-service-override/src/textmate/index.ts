@@ -1,25 +1,15 @@
 import * as vsctm from "vscode-textmate";
 import { loadWASM, OnigScanner, OnigString } from "vscode-oniguruma";
-import * as monaco from "typed-monaco-editor-core";
+import * as monaco from "monaco-editor";
 import wasmURL from "vscode-oniguruma/release/onig.wasm?url";
 import { TMToMonacoToken } from "./tm-to-monaco-token";
+import { IColorTheme, IThemeService } from "vscode/services";
 import { reverseConvert } from "./theme-converter";
+
 function overrideSetTheme() {
   const original = monaco.editor.defineTheme;
   monaco.editor.defineTheme = function (themeName, themeData) {
-    const dataCopy: monaco.editor.IStandaloneThemeData = {
-      base: themeData.base,
-      inherit: themeData.inherit,
-      colors: themeData.colors,
-      rules: [...themeData.rules],
-      encodedTokensColors: themeData.encodedTokensColors,
-    };
-    dataCopy.rules.push({
-      token: "",
-      foreground: themeData.colors["editor.foreground"],
-      background: themeData.colors["editor.background"],
-    });
-    original(themeName, dataCopy);
+    original(themeName, themeData);
   };
 }
 
@@ -47,17 +37,22 @@ class TokensCache2 {
       }),
       loadGrammar: () => Promise.resolve(undefined),
     });
-    console.log(this._registry);
 
-    const themeService = (editor as unknown as { _themeService: any })._themeService;
+    const themeService = (editor as unknown as { _themeService: IThemeService })._themeService;
     themeService.onDidColorThemeChange(this.setTheme.bind(this));
-    this.setTheme(themeService._theme);
+    this.setTheme(themeService.getColorTheme());
   }
 
-  private setTheme(theme: any) {
-    const colorTheme = reverseConvert(theme.themeData);
-    this._registry.setTheme(colorTheme);
-    this._currentThemeData = colorTheme;
+  private setTheme(theme: IColorTheme) {
+    // const colorTheme = reverseConvert(theme.themeData);
+    const colorTheme = theme;
+    this._registry.setTheme(
+      {
+        settings: colorTheme.tokenColors,
+      },
+      theme.tokenColorMap.map((c) => c.toUpperCase())
+    );
+    this._currentThemeData = colorTheme.themeData;
   }
 
   addGrammar(grammar: string, type: "json" | "plist"): Promise<vsctm.IGrammar> {

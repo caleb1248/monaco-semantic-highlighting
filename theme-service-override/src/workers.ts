@@ -1,4 +1,4 @@
-import editorWorker from "typed-monaco-editor-core/esm/vs/editor/editor.worker?worker";
+import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import tsWorker from "./typescript-language-features/ts.worker?worker";
 
 self.MonacoEnvironment = {

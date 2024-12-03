@@ -1,4 +1,4 @@
-import { languages } from "typed-monaco-editor-core";
+import { languages } from "monaco-editor";
 
 export const conf: languages.LanguageConfiguration = {
   wordPattern:

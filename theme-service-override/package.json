@@ -1,0 +1,28 @@
+{
+  "name": "monaco-semantic-highlighting",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "postinstall": "node add-extra-types.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.95.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.2.12"
+  },
+  "dependencies": {
+    "@codingame/monaco-vscode-chat-extensions-notebook-task-terminal-testing-common": "^11.1.1",
+    "@codingame/monaco-vscode-editor-service-override": "^11.1.1",
+    "@codingame/monaco-vscode-model-service-override": "^11.1.1",
+    "@codingame/monaco-vscode-monarch-service-override": "^11.1.1",
+    "@codingame/monaco-vscode-theme-service-override": "^11.1.1",
+    "monaco-editor": "npm:@codingame/monaco-vscode-editor-api@^11.1.1",
+    "vscode": "npm:@codingame/monaco-vscode-api@^11.1.1",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.0.0"
+  }
+}

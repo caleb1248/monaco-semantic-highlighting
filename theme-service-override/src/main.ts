@@ -1,13 +1,16 @@
 import "./style.css";
+import "./setup";
 import "./workers";
 import "./typescript-basics";
-import * as monaco from "typed-monaco-editor-core";
+import * as monaco from "monaco-editor";
 import { TokensCache2, convertTheme } from "./textmate/index";
 import darkPlusTheme from "./textmate/themes/dark.json";
+import { createConfiguredEditor } from "vscode/monaco";
 
 const editorDiv = document.createElement("div");
 editorDiv.classList.add("editor");
 document.getElementById("app")?.appendChild(editorDiv);
+
 const model = monaco.editor.createModel(
   `// This is a demonstration of what textmate grammars can do, and what monaco grammars can't.
 
@@ -33,17 +36,18 @@ export { add, add as default }`,
   "typescript",
   monaco.Uri.file("main.ts")
 );
-// Register textmate theme
-const theme = convertTheme(darkPlusTheme);
 
+const theme = convertTheme(darkPlusTheme);
 monaco.editor.defineTheme("dark-plus", theme);
 
-const editor = monaco.editor.create(editorDiv, {
-  model,
-  tabSize: 2,
+const editor = createConfiguredEditor(editorDiv, {
   theme: "dark-plus",
-  "semanticHighlighting.enabled": true,
+  model,
+  minimap: { enabled: false },
 });
+
+// Register textmate theme
+
 // Begin textmate stuff
 
 // const cache = new TokensProviderCache(editor);

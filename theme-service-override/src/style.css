@@ -1,0 +1,18 @@
+html,
+body,
+div#app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: "Segoe UI", sans-serif;
+}
+
+div.editor {
+  width: 100%;
+  height: 100%;
+}
+
+.cursor {
+  background-color: var(--vscode-editorCursor-foreground, --vscode-editor-foreground);
+}

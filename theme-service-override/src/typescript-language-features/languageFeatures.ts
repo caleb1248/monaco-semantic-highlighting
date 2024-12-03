@@ -23,7 +23,7 @@ import {
   IRange,
   MarkerTag,
   MarkerSeverity,
-} from "typed-monaco-editor-core";
+} from "monaco-editor";
 
 //#region utils copied from typescript to prevent loading the entire typescriptServices ---
 

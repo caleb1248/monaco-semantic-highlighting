@@ -3,6 +3,6 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-declare module "typed-monaco-editor-core/esm/vs/editor/editor.worker" {
+declare module "vscode/vscode/vs/editor/editor.worker" {
   export function initialize(callback: (ctx: any, createData: any) => any): void;
 }
