@@ -24,7 +24,7 @@ const wasmPromise = fetch(wasmURL)
 class TokensCache2 {
   private _cache: Record<string, monaco.languages.EncodedTokensProvider> = {};
   private _registry: vsctm.Registry;
-  // @ts-expect-error _currentThemeData is definitely assigned in the constructor due to a call of the setTheme method
+  //// @ts-expect-error _currentThemeData is definitely assigned in the constructor due to a call of the setTheme method
   private _currentThemeData: vsctm.IRawTheme;
 
   constructor(editor: monaco.editor.IEditor) {
