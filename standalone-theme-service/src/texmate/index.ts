@@ -8,11 +8,12 @@ import {
   IStandaloneTheme,
   IStandaloneThemeService,
 } from "monaco-editor-core/esm/vs/editor/standalone/common/standaloneTheme";
-import { IColorTheme } from "monaco-editor-core/esm/vs/platform/theme/common/themeService";
+import type { IColorTheme } from "monaco-editor-core/esm/vs/platform/theme/common/themeService";
 
 import { TMToMonacoToken } from "./tm-to-monaco-token";
 import { convertTheme, IVScodeTheme, reverseConvert } from "./theme-converter";
-import { IColorTheme as ITextmateColorTheme } from "./TMHelper";
+import type { IColorTheme as ITextmateColorTheme } from "./TMHelper";
+import { addSemanticTokenRules } from "../semantic-tokens/simple";
 
 declare module "monaco-editor-core" {
   namespace editor {
@@ -23,7 +24,9 @@ declare module "monaco-editor-core" {
 function overrideSetTheme() {
   const original = monaco.editor.defineTheme;
   monaco.editor.defineTheme = function (themeName, themeData) {
-    original(themeName, "rules" in themeData ? themeData : convertTheme(themeData));
+    const monacoTheme = "rules" in themeData ? themeData : convertTheme(themeData);
+    addSemanticTokenRules(monacoTheme);
+    original(themeName, monacoTheme);
   };
 }
 
